@@ -26,10 +26,12 @@
                         unlv: {
                             scarlet: '#CF0A2C',
                             gray: '#B1B3B3',
-                            bg: '#0F172A',
-                            card: '#1E293B',
-                            text: '#F8FAFC',
-                            muted: '#94A3B8'
+                            // Updated Neutral Gray Palette
+                            bg: '#171717',    // Neutral 900
+                            card: '#262626',  // Neutral 800
+                            border: '#404040', // Neutral 700
+                            text: '#F5F5F5',  // Neutral 100
+                            muted: '#A3A3A3'  // Neutral 400
                         }
                     },
                     fontFamily: {
@@ -43,13 +45,20 @@
         [x-cloak] {
             display: none !important;
         }
+
+        /* Custom Scrollbar for Dates */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body class="bg-unlv-bg text-unlv-text font-sans antialiased" x-data="portalApp()">
 
     <!-- Header -->
-    <header class="bg-slate-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
+    <header class="bg-neutral-900 border-b border-unlv-border sticky top-0 z-50">
+        <!-- Main Bar -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
 
@@ -71,15 +80,15 @@
                 <div class="w-full md:w-auto flex-1 max-w-lg">
                     <div class="relative group">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-unlv-muted group-focus-within:text-unlv-scarlet transition-colors"
+                            <svg class="h-5 w-5 text-unlv-muted group-focus-within:text-white transition-colors"
                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </span>
                         <input type="text" x-model="search"
-                            class="block w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-unlv-text placeholder-slate-500 focus:outline-none focus:border-unlv-scarlet focus:ring-1 focus:ring-unlv-scarlet transition-all duration-200"
-                            placeholder="Search player, school...">
+                            class="block w-full pl-10 pr-4 py-2.5 bg-neutral-800 border border-unlv-border rounded-lg text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-unlv-scarlet focus:ring-1 focus:ring-unlv-scarlet transition-all duration-200"
+                            placeholder="Search player or school...">
                     </div>
                 </div>
 
@@ -94,6 +103,56 @@
                 </div>
             </div>
         </div>
+
+        <!-- Sub-Header Filters -->
+        <div class="bg-neutral-800/50 border-t border-unlv-border backdrop-blur-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between text-sm">
+
+                    <!-- Filter Controls -->
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+
+                        <!-- Direction Toggle -->
+                        <div class="flex bg-neutral-900 rounded-lg p-1 border border-unlv-border">
+                            <button @click="filterType = 'all'"
+                                :class="filterType === 'all' ? 'bg-neutral-700 text-white shadow' : 'text-neutral-400 hover:text-white'"
+                                class="px-3 py-1.5 rounded-md font-medium transition-all text-xs uppercase tracking-wide">All</button>
+                            <button @click="filterType = 'from'"
+                                :class="filterType === 'from' ? 'bg-unlv-scarlet text-white shadow' : 'text-neutral-400 hover:text-white'"
+                                class="px-3 py-1.5 rounded-md font-medium transition-all text-xs uppercase tracking-wide">From
+                                School</button>
+                            <button @click="filterType = 'to'"
+                                :class="filterType === 'to' ? 'bg-green-600 text-white shadow' : 'text-neutral-400 hover:text-white'"
+                                class="px-3 py-1.5 rounded-md font-medium transition-all text-xs uppercase tracking-wide">To
+                                School</button>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="h-6 w-px bg-unlv-border hidden sm:block"></div>
+
+                        <!-- Date Filters -->
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <span
+                                    class="absolute left-2 top-1.5 text-[10px] text-unlv-muted font-bold uppercase">Start</span>
+                                <input type="date" x-model="startDate"
+                                    class="bg-neutral-900 border border-unlv-border text-white text-xs rounded-lg px-2 pt-5 pb-1 focus:ring-1 focus:ring-unlv-scarlet focus:border-unlv-scarlet outline-none h-10 w-32">
+                            </div>
+                            <span class="text-unlv-muted">-</span>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-2 top-1.5 text-[10px] text-unlv-muted font-bold uppercase">End</span>
+                                <input type="date" x-model="endDate"
+                                    class="bg-neutral-900 border border-unlv-border text-white text-xs rounded-lg px-2 pt-5 pb-1 focus:ring-1 focus:ring-unlv-scarlet focus:border-unlv-scarlet outline-none h-10 w-32">
+                            </div>
+                            <button @click="resetFilters"
+                                class="text-xs text-unlv-muted hover:text-unlv-scarlet underline px-2">Reset</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </header>
 
     <!-- Main Content -->
@@ -101,15 +160,15 @@
 
         <!-- Loading -->
         <div x-show="loading" class="flex flex-col justify-center items-center h-64 space-y-4">
-            <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-700 border-t-unlv-scarlet"></div>
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-neutral-700 border-t-unlv-scarlet"></div>
             <p class="text-unlv-muted text-sm uppercase tracking-widest animate-pulse">Loading Portal Data...</p>
         </div>
 
         <!-- No Results -->
         <div x-show="!loading && filteredPlayers.length === 0" x-cloak
-            class="text-center py-20 bg-unlv-card rounded-2xl border border-slate-800 border-dashed">
-            <div class="inline-flex items-center justify-center p-4 bg-slate-800/50 rounded-full mb-4">
-                <svg class="h-8 w-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            class="text-center py-20 bg-unlv-card rounded-2xl border border-unlv-border border-dashed">
+            <div class="inline-flex items-center justify-center p-4 bg-neutral-900/50 rounded-full mb-4">
+                <svg class="h-8 w-8 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
@@ -123,22 +182,14 @@
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <template x-for="player in filteredPlayers" :key="player.first_name + player.last_name + player.origin">
                 <div
-                    class="group relative bg-unlv-card rounded-xl border border-slate-700 overflow-hidden hover:border-unlv-scarlet transition-all duration-300 hover:shadow-2xl hover:shadow-unlv-scarlet/10 flex flex-col">
-
-                    <!-- UNLV Interest Badge -->
-                    <div x-show="isUnlvInterest(player)" class="absolute top-3 right-3 z-10">
-                        <span
-                            class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-unlv-scarlet text-white shadow-lg">
-                            UNLV Alert
-                        </span>
-                    </div>
+                    class="group relative bg-unlv-card rounded-xl border border-unlv-border overflow-hidden hover:border-unlv-scarlet transition-all duration-300 hover:shadow-2xl hover:shadow-neutral-900 flex flex-col">
 
                     <!-- Card Header / Player Info -->
                     <div class="p-5 flex items-start gap-4">
                         <!-- Headshot Placeholder -->
                         <div class="flex-shrink-0">
                             <div
-                                class="h-12 w-12 rounded-full bg-slate-700 flex items-center justify-center text-unlv-muted font-bold text-lg border border-slate-600">
+                                class="h-12 w-12 rounded-full bg-neutral-700 flex items-center justify-center text-unlv-muted font-bold text-lg border border-neutral-600">
                                 <span x-text="player.first_name.charAt(0)"></span>
                             </div>
                         </div>
@@ -148,7 +199,7 @@
                                 x-text="`${player.first_name} ${player.last_name}`"></h3>
                             <div class="flex items-center gap-2 mt-1">
                                 <span
-                                    class="inline-flex items-center justify-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 uppercase"
+                                    class="inline-flex items-center justify-center px-2 py-0.5 rounded text-[10px] font-bold bg-neutral-700 text-neutral-300 uppercase"
                                     x-text="player.position"></span>
                                 <!-- Stars -->
                                 <template x-if="player.stars">
@@ -168,20 +219,21 @@
                     <div class="px-5 pb-5 flex-1 flex flex-col justify-end">
                         <div class="relative py-3">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                <div class="w-full border-t border-slate-700/50"></div>
+                                <div class="w-full border-t border-neutral-700/50"></div>
                             </div>
                         </div>
 
                         <div class="flex items-center justify-between text-sm mt-1">
                             <!-- Origin -->
-                            <div class="flex-1 min-w-0">
+                            <div class="flex-1 min-w-0"
+                                :class="filterType === 'from' ? 'text-unlv-scarlet font-bold' : ''">
                                 <p class="text-[10px] text-unlv-muted uppercase font-bold tracking-wider mb-0.5">From
                                 </p>
-                                <div class="font-medium text-slate-200 truncate" x-text="player.origin"></div>
+                                <div class="font-medium text-neutral-200 truncate" x-text="player.origin"></div>
                             </div>
 
                             <!-- Arrow -->
-                            <div class="mx-3 text-slate-600">
+                            <div class="mx-3 text-neutral-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                     fill="currentColor">
                                     <path fill-rule="evenodd"
@@ -191,18 +243,19 @@
                             </div>
 
                             <!-- Destination -->
-                            <div class="flex-1 min-w-0 text-right">
+                            <div class="flex-1 min-w-0 text-right"
+                                :class="filterType === 'to' ? 'text-green-500 font-bold' : ''">
                                 <p class="text-[10px] text-unlv-muted uppercase font-bold tracking-wider mb-0.5">To</p>
                                 <div class="font-medium truncate"
-                                    :class="player.destination ? 'text-white' : 'text-slate-500 italic'"
+                                    :class="player.destination ? 'text-white' : 'text-neutral-500 italic'"
                                     x-text="player.destination || 'Undecided'">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Footer -->
-                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center">
-                            <span class="text-xs text-slate-500 font-mono"
+                        <div class="mt-4 pt-3 border-t border-neutral-800 flex justify-between items-center">
+                            <span class="text-xs text-neutral-500 font-mono"
                                 x-text="formatDate(player.transferDate)"></span>
                         </div>
                     </div>
@@ -217,6 +270,9 @@
                 loading: true,
                 search: '',
                 players: [],
+                filterType: 'all', // 'all', 'from', 'to'
+                startDate: '',
+                endDate: '',
 
                 async init() {
                     try {
@@ -233,16 +289,53 @@
                     }
                 },
 
+                resetFilters() {
+                    this.search = '';
+                    this.filterType = 'all';
+                    this.startDate = '';
+                    this.endDate = '';
+                },
+
                 get filteredPlayers() {
-                    if (this.search === '') {
-                        return this.players;
-                    }
-                    const q = this.search.toLowerCase();
                     return this.players.filter(player => {
-                        const name = `${player.first_name} ${player.last_name}`.toLowerCase();
-                        const origin = (player.origin || '').toLowerCase();
-                        const dest = (player.destination || '').toLowerCase();
-                        return name.includes(q) || origin.includes(q) || dest.includes(q);
+                        // 1. Search Text (Combined with Filter Type)
+                        const q = this.search.toLowerCase();
+                        if (q) {
+                            const name = `${player.first_name} ${player.last_name}`.toLowerCase();
+                            const origin = (player.origin || '').toLowerCase();
+                            const dest = (player.destination || '').toLowerCase();
+
+                            // Filter logic based on focus button
+                            if (this.filterType === 'all') {
+                                if (!name.includes(q) && !origin.includes(q) && !dest.includes(q)) return false;
+                            } else if (this.filterType === 'from') {
+                                if (!origin.includes(q)) return false;
+                                // Note: searching name while focused on 'from' might be desired, but prompt implies specific focus "from a school"
+                                // Let's strictly filter school if search is school-like, or allow name search?
+                                // Prompt: "button for undividuals to focus on players from a school or to a school"
+                                // It implies the search bar acts as the school input when this is toggled.
+                                // But keeping name search is usually good UX. Let's allow Name OR (Field Match).
+                                if (!name.includes(q) && !origin.includes(q)) return false;
+                            } else if (this.filterType === 'to') {
+                                if (!name.includes(q) && !dest.includes(q)) return false;
+                            }
+                        }
+
+                        // 2. Date Range
+                        if (this.startDate || this.endDate) {
+                            const pDate = new Date(player.transferDate);
+                            if (this.startDate) {
+                                if (pDate < new Date(this.startDate)) return false;
+                            }
+                            if (this.endDate) {
+                                // Add 1 day to end date to include the full day
+                                const eDate = new Date(this.endDate);
+                                eDate.setHours(23, 59, 59);
+                                if (pDate > eDate) return false;
+                            }
+                        }
+
+                        return true;
                     });
                 },
 
@@ -253,12 +346,6 @@
                         day: 'numeric',
                         year: 'numeric'
                     });
-                },
-
-                isUnlvInterest(player) {
-                    const origin = (player.origin || '').toLowerCase();
-                    const dest = (player.destination || '').toLowerCase();
-                    return origin === 'unlv' || dest === 'unlv';
                 }
             }
         }
