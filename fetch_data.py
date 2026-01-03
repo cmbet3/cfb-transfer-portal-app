@@ -3,7 +3,13 @@ import json
 import os
 
 # Configuration
-API_KEY = "+d6UnUpCXdLooqq8pYrrdbREO3dJ8lIz/3fbFamD3vvFtRsnfKdjmLw59EnRGH72"
+try:
+    from secrets import API_KEY
+except ImportError:
+    API_KEY = os.environ.get("CFBD_API_KEY")
+    if not API_KEY:
+        print("Error: content of secrets.py not found. Please create secrets.py with API_KEY variable.")
+        exit(1)
 BASE_URL = "https://api.collegefootballdata.com/player/portal"
 YEAR = 2025
 
